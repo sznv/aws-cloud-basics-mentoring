@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(value = "/api/v1")
+@RequestMapping(value = "/api/v1/locations")
 @Api(tags = {"Locations"})
 public class LocationController {
 
@@ -35,13 +35,13 @@ public class LocationController {
 		this.locationService = locationService;
 	}
 
-	@GetMapping(path = "/locations")
+	@GetMapping
 	@ApiOperation(value = "Retrieve all locations")
 	public List<Location> getLocations() {
 		return locationService.getLocations();
 	}
 
-	@GetMapping(path = "/location")
+	@GetMapping(params = {"latitude", "longitude"})
 	@ApiOperation(value = "Retrieve specific location")
 	public Location getLocation(
 		@ApiParam(value = "latitude of location to retrieve", required = true) @RequestParam String latitude,
@@ -49,14 +49,14 @@ public class LocationController {
 		return locationService.getLocation(new LocationId(latitude, longitude));
 	}
 
-	@PostMapping(path = "/locations")
+	@PostMapping
 	@ApiOperation(value = "Create location")
 	public Location createLocation(@RequestBody Location location) {
 		return locationService.createLocation(location);
 	}
 
 	@CrossOrigin
-	@PutMapping(path = "/locations")
+	@PutMapping
 	@ApiOperation(value = "Update specific location")
 	public Location updateLocation(
 		@ApiParam(value = "latitude of location to update", required = true) @RequestParam String latitude,
@@ -66,7 +66,7 @@ public class LocationController {
 	}
 
 	@CrossOrigin
-	@DeleteMapping(path = "/locations")
+	@DeleteMapping
 	@ApiOperation(value = "Delete specific location")
 	public void deleteLocation(
 		@ApiParam(value = "latitude of location to remove", required = true) @RequestParam String latitude,

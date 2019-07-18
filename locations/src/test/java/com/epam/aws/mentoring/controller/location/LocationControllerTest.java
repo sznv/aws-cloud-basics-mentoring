@@ -58,7 +58,7 @@ public class LocationControllerTest {
 
 		given(service.getLocation(locationId)).willReturn(location);
 
-		mvc.perform(get("/api/v1/location")
+		mvc.perform(get("/api/v1/locations")
 			.param("latitude", "40.661")
 			.param("longitude", "-73.944")
 			.contentType(MediaType.APPLICATION_JSON))
