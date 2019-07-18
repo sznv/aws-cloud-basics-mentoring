@@ -12,7 +12,7 @@ public interface LocationService {
 
 	Location createLocation(Location location);
 
-	Location updateLocation(Location location);
+	Location updateLocation(LocationId locationId, Location location);
 
 	void deleteLocation(LocationId locationId);
 }

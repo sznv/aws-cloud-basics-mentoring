@@ -74,7 +74,7 @@ public class LocationControllerTest {
 
 		given(service.createLocation(location)).willReturn(location);
 
-		mvc.perform(post("/api/v1/location/create")
+		mvc.perform(post("/api/v1/locations")
 			.contentType(MediaType.APPLICATION_JSON)
 			.content(new ObjectMapper().writeValueAsString(location)))
 			.andExpect(status().isOk())
@@ -87,9 +87,11 @@ public class LocationControllerTest {
 		Location location = new Location(locationId, "United States", "New York", "New York City",
 			"USD");
 
-		given(service.updateLocation(location)).willReturn(location);
+		given(service.updateLocation(locationId, location)).willReturn(location);
 
-		mvc.perform(put("/api/v1/location/update")
+		mvc.perform(put("/api/v1/locations")
+			.param("latitude", "40.661")
+			.param("longitude", "-73.944")
 			.contentType(MediaType.APPLICATION_JSON)
 			.content(new ObjectMapper().writeValueAsString(location)))
 			.andExpect(status().isOk())
@@ -102,9 +104,10 @@ public class LocationControllerTest {
 
 		doNothing().when(service).deleteLocation(locationId);
 
-		mvc.perform(delete("/api/v1/location/delete")
-			.contentType(MediaType.APPLICATION_JSON)
-			.content(new ObjectMapper().writeValueAsString(locationId)))
+		mvc.perform(delete("/api/v1/locations")
+			.param("latitude", "40.661")
+			.param("longitude", "-73.944")
+			.contentType(MediaType.APPLICATION_JSON))
 			.andExpect(status().isOk());
 	}
 }

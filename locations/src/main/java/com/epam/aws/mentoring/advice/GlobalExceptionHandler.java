@@ -1,5 +1,6 @@
 package com.epam.aws.mentoring.advice;
 
+import com.epam.aws.mentoring.exception.EntityNotFoundException;
 import com.epam.aws.mentoring.util.ErrorView;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
@@ -14,6 +15,13 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+
+	@ExceptionHandler(EntityNotFoundException.class)
+	public ResponseEntity<Object> handleNotFound(Exception ex, WebRequest request) {
+		HttpStatus status = HttpStatus.NOT_FOUND;
+
+		return this.handleExceptionInternal(ex, null, new HttpHeaders(), status, request);
+	}
 
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<Object> handleInternalServerError(Exception ex, WebRequest request) {

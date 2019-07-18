@@ -1,6 +1,8 @@
 buildscript {
     ext {
         springBootVersion = '2.1.6.RELEASE'
+        swaggerVersion = '2.9.2'
+        lombokVersion = '1.18.8'
     }
     repositories {
         mavenCentral()
@@ -24,10 +26,10 @@ repositories {
 }
 
 dependencies {
-    compile('org.springframework.boot:spring-boot-starter-web')
-    compile('io.springfox:springfox-swagger2:2.9.2')
-    compile('io.springfox:springfox-swagger-ui:2.9.2')
-    compileOnly('org.projectlombok:lombok:1.18.8')
-    annotationProcessor('org.projectlombok:lombok:1.18.8')
-    testCompile('org.springframework.boot:spring-boot-starter-test')
+    compile "org.springframework.boot:spring-boot-starter-web"
+    compile "io.springfox:springfox-swagger2:${swaggerVersion}"
+    compile "io.springfox:springfox-swagger-ui:${swaggerVersion}"
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    testCompile "org.springframework.boot:spring-boot-starter-test"
 }

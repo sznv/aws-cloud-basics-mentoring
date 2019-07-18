@@ -5,15 +5,15 @@ import com.epam.aws.mentoring.domain.LocationId;
 import com.epam.aws.mentoring.exception.EntityNotFoundException;
 import com.epam.aws.mentoring.service.LocationService;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.stereotype.Service;
 
 @Service
 public class LocationServiceImpl implements LocationService {
 
-	private static final Map<LocationId, Location> locationMap = new HashMap<>();
+	private static final Map<LocationId, Location> locationMap = new ConcurrentHashMap<>();
 
 	static {
 		LocationId id1 = new LocationId("40.661", "-73.944");
@@ -46,9 +46,7 @@ public class LocationServiceImpl implements LocationService {
 	}
 
 	@Override
-	public Location updateLocation(Location location) {
-		LocationId locationId = location.getId();
-
+	public Location updateLocation(LocationId locationId, Location location) {
 		if (!locationMap.containsKey(locationId)) {
 			throw new EntityNotFoundException(String.format("%s not found", locationId));
 		}

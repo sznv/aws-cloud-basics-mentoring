@@ -49,25 +49,28 @@ public class LocationController {
 		return locationService.getLocation(new LocationId(latitude, longitude));
 	}
 
-	@PostMapping(path = "/location/create")
+	@PostMapping(path = "/locations")
 	@ApiOperation(value = "Create location")
 	public Location createLocation(@RequestBody Location location) {
 		return locationService.createLocation(location);
 	}
 
 	@CrossOrigin
-	@PutMapping(path = "/location/update")
+	@PutMapping(path = "/locations")
 	@ApiOperation(value = "Update specific location")
 	public Location updateLocation(
+		@ApiParam(value = "latitude of location to update", required = true) @RequestParam String latitude,
+		@ApiParam(value = "longitude of location to update", required = true) @RequestParam String longitude,
 		@ApiParam(value = "location payload to update", required = true) @RequestBody Location location) {
-		return locationService.updateLocation(location);
+		return locationService.updateLocation(new LocationId(latitude, longitude), location);
 	}
 
 	@CrossOrigin
-	@DeleteMapping(path = "/location/delete")
+	@DeleteMapping(path = "/locations")
 	@ApiOperation(value = "Delete specific location")
 	public void deleteLocation(
-		@ApiParam(value = "id of location to delete", required = true) @RequestBody LocationId locationId) {
-		locationService.deleteLocation(locationId);
+		@ApiParam(value = "latitude of location to remove", required = true) @RequestParam String latitude,
+		@ApiParam(value = "longitude of location to remove", required = true) @RequestParam String longitude) {
+		locationService.deleteLocation(new LocationId(latitude, longitude));
 	}
 }
