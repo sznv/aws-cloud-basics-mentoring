@@ -7,17 +7,14 @@ import com.epam.aws.mentoring.domain.LocationId;
 import com.epam.aws.mentoring.exception.AppRuntimeException;
 import com.epam.aws.mentoring.exception.EntityNotFoundException;
 import com.epam.aws.mentoring.repository.LocationRepository;
+import com.epam.aws.mentoring.util.DataBindHelper;
 import com.epam.aws.mentoring.util.EntityKeyComposer;
-import com.epam.aws.mentoring.util.RequestBodyComposer;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -28,13 +25,13 @@ import software.amazon.awssdk.services.s3.model.ListObjectsResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
-@Component
+@Repository
 public class LocationRepositoryImpl implements LocationRepository {
 
 	private S3Client s3Client;
 	private ObjectMapper objectMapper;
 	private EntityKeyComposer keyComposer;
-	private RequestBodyComposer bodyComposer;
+	private DataBindHelper dataBindHelper;
 
 	@Value("${bucket.name}")
 	private String bucketName;
@@ -45,11 +42,11 @@ public class LocationRepositoryImpl implements LocationRepository {
 	@Autowired
 	public LocationRepositoryImpl(S3Client s3Client,
 		ObjectMapper objectMapper, EntityKeyComposer keyComposer,
-		RequestBodyComposer bodyComposer) {
+		DataBindHelper dataBindHelper) {
 		this.s3Client = s3Client;
 		this.objectMapper = objectMapper;
 		this.keyComposer = keyComposer;
-		this.bodyComposer = bodyComposer;
+		this.dataBindHelper = dataBindHelper;
 	}
 
 	@Override
@@ -70,14 +67,14 @@ public class LocationRepositoryImpl implements LocationRepository {
 	}
 
 	@Override
-	public Optional<Location> getLocation(String key) {
+	public Location getLocation(String key) {
 		try {
 			String objectAsString = s3Client.getObjectAsBytes(GetObjectRequest.builder()
 				.bucket(bucketName)
 				.key(key)
 				.build()).asUtf8String();
-			return Optional.of(objectMapper.readValue(objectAsString, Location.class));
-		} catch (UncheckedIOException | SdkClientException | IOException e) {
+			return dataBindHelper.getLocationFromJson(objectAsString);
+		} catch (SdkClientException e) {
 			throw new AppRuntimeException(e);
 		} catch (AwsServiceException e) {
 			throw new EntityNotFoundException(e);
@@ -87,14 +84,6 @@ public class LocationRepositoryImpl implements LocationRepository {
 	@Override
 	public void createLocation(Location location) {
 		saveLocation(location.getId(), location);
-	}
-
-	private void saveLocation(LocationId id, Location location) {
-		s3Client.putObject(PutObjectRequest.builder()
-			.bucket(bucketName)
-			.key(keyComposer.composeLocationKey(id))
-			.contentType(APPLICATION_JSON_UTF8_VALUE)
-			.build(), bodyComposer.composeJsonRequestBody(location));
 	}
 
 	@Override
@@ -108,5 +97,13 @@ public class LocationRepositoryImpl implements LocationRepository {
 			.bucket(bucketName)
 			.key(keyComposer.composeLocationKey(id))
 			.build());
+	}
+
+	private void saveLocation(LocationId id, Location location) {
+		s3Client.putObject(PutObjectRequest.builder()
+			.bucket(bucketName)
+			.key(keyComposer.composeLocationKey(id))
+			.contentType(APPLICATION_JSON_UTF8_VALUE)
+			.build(), dataBindHelper.composeJsonRequestBody(location));
 	}
 }

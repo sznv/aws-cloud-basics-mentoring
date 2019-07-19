@@ -2,14 +2,13 @@ package com.epam.aws.mentoring.repository;
 
 import com.epam.aws.mentoring.domain.Location;
 import com.epam.aws.mentoring.domain.LocationId;
-import java.util.Optional;
 import java.util.Set;
 
 public interface LocationRepository {
 
 	Set<String> getLocationKeys();
 
-	Optional<Location> getLocation(String key);
+	Location getLocation(String key);
 
 	void createLocation(Location location);
 

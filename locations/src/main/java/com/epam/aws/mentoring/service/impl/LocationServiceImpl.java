@@ -27,15 +27,14 @@ public class LocationServiceImpl implements LocationService {
 	@Override
 	public List<Location> getLocations() {
 		return locationRepository.getLocationKeys().stream()
-			.map(key -> locationRepository.getLocation(key)
-				.orElseThrow(EntityNotFoundException::new))
+			.map(key -> locationRepository.getLocation(key))
 			.collect(Collectors.toList());
 	}
 
 	@Override
 	public Location getLocation(LocationId id) {
 		String key = keyComposer.composeLocationKey(id);
-		return locationRepository.getLocation(key).orElseThrow(EntityNotFoundException::new);
+		return locationRepository.getLocation(key);
 	}
 
 	@Override
@@ -45,15 +44,22 @@ public class LocationServiceImpl implements LocationService {
 
 	@Override
 	public void updateLocation(LocationId id, Location location) {
-		String key = keyComposer.composeLocationKey(id);
-		locationRepository.getLocation(key).orElseThrow(EntityNotFoundException::new);
+		checkIfLocationExists(id);
 		locationRepository.updateLocation(id, location);
 	}
 
 	@Override
 	public void deleteLocation(LocationId id) {
-		String key = keyComposer.composeLocationKey(id);
-		locationRepository.getLocation(key).orElseThrow(EntityNotFoundException::new);
+		checkIfLocationExists(id);
 		locationRepository.deleteLocation(id);
+	}
+
+	private void checkIfLocationExists(LocationId id) {
+		Location location = locationRepository.getLocation(keyComposer.composeLocationKey(id));
+
+		if (location == null) {
+			throw new EntityNotFoundException(
+				String.format("Location associated with id=%s does not exist", id));
+		}
 	}
 }
