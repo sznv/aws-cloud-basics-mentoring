@@ -1,14 +1,15 @@
-package com.epam.aws.mentoring.service;
+package com.epam.aws.mentoring.repository;
 
 import com.epam.aws.mentoring.domain.Location;
 import com.epam.aws.mentoring.domain.LocationId;
-import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
-public interface LocationService {
+public interface LocationRepository {
 
-	List<Location> getLocations();
+	Set<String> getLocationKeys();
 
-	Location getLocation(LocationId id);
+	Optional<Location> getLocation(String key);
 
 	void createLocation(Location location);
 

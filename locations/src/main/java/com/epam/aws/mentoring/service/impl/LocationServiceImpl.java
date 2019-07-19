@@ -3,61 +3,57 @@ package com.epam.aws.mentoring.service.impl;
 import com.epam.aws.mentoring.domain.Location;
 import com.epam.aws.mentoring.domain.LocationId;
 import com.epam.aws.mentoring.exception.EntityNotFoundException;
+import com.epam.aws.mentoring.repository.LocationRepository;
 import com.epam.aws.mentoring.service.LocationService;
-import java.util.ArrayList;
+import com.epam.aws.mentoring.util.EntityKeyComposer;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class LocationServiceImpl implements LocationService {
 
-	private static final Map<LocationId, Location> locationMap = new ConcurrentHashMap<>();
+	private LocationRepository locationRepository;
+	private EntityKeyComposer keyComposer;
 
-	static {
-		LocationId id1 = new LocationId("40.661", "-73.944");
-		Location location1 = new Location(id1, "United States", "New York", "New York City", "USD");
-		locationMap.put(id1, location1);
-
-		LocationId id2 = new LocationId("51.507222", "-0.1275");
-		Location location2 = new Location(id2, "United Kingdom", "England", "London", "GBP");
-		locationMap.put(id2, location2);
-
+	@Autowired
+	public LocationServiceImpl(LocationRepository locationRepository,
+		EntityKeyComposer keyComposer) {
+		this.locationRepository = locationRepository;
+		this.keyComposer = keyComposer;
 	}
 
 	@Override
 	public List<Location> getLocations() {
-		return new ArrayList<>(locationMap.values());
+		return locationRepository.getLocationKeys().stream()
+			.map(key -> locationRepository.getLocation(key)
+				.orElseThrow(EntityNotFoundException::new))
+			.collect(Collectors.toList());
 	}
 
 	@Override
-	public Location getLocation(LocationId locationId) {
-		return locationMap.computeIfAbsent(locationId, key -> {
-			throw new EntityNotFoundException(String.format("%s not found", key));
-		});
+	public Location getLocation(LocationId id) {
+		String key = keyComposer.composeLocationKey(id);
+		return locationRepository.getLocation(key).orElseThrow(EntityNotFoundException::new);
 	}
 
 	@Override
-	public Location createLocation(Location location) {
-		locationMap.put(location.getId(), location);
-
-		return location;
+	public void createLocation(Location location) {
+		locationRepository.createLocation(location);
 	}
 
 	@Override
-	public Location updateLocation(LocationId locationId, Location location) {
-		if (!locationMap.containsKey(locationId)) {
-			throw new EntityNotFoundException(String.format("%s not found", locationId));
-		}
-
-		locationMap.put(locationId, location);
-
-		return location;
+	public void updateLocation(LocationId id, Location location) {
+		String key = keyComposer.composeLocationKey(id);
+		locationRepository.getLocation(key).orElseThrow(EntityNotFoundException::new);
+		locationRepository.updateLocation(id, location);
 	}
 
 	@Override
-	public void deleteLocation(LocationId locationId) {
-		locationMap.remove(locationId);
+	public void deleteLocation(LocationId id) {
+		String key = keyComposer.composeLocationKey(id);
+		locationRepository.getLocation(key).orElseThrow(EntityNotFoundException::new);
+		locationRepository.deleteLocation(id);
 	}
 }

@@ -1,6 +1,5 @@
 package com.epam.aws.mentoring.controller.location;
 
-import com.epam.aws.mentoring.controller.documentation.DocumentationController;
 import com.epam.aws.mentoring.domain.Location;
 import com.epam.aws.mentoring.domain.LocationId;
 import com.epam.aws.mentoring.service.LocationService;
@@ -8,8 +7,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,8 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/api/v1/locations")
 @Api(tags = {"Locations"})
 public class LocationController {
-
-	private static Logger logger = LoggerFactory.getLogger(DocumentationController.class);
 
 	private LocationService locationService;
 
@@ -51,18 +46,18 @@ public class LocationController {
 
 	@PostMapping
 	@ApiOperation(value = "Create location")
-	public Location createLocation(@RequestBody Location location) {
-		return locationService.createLocation(location);
+	public void createLocation(@RequestBody Location location) {
+		locationService.createLocation(location);
 	}
 
 	@CrossOrigin
 	@PutMapping
 	@ApiOperation(value = "Update specific location")
-	public Location updateLocation(
+	public void updateLocation(
 		@ApiParam(value = "latitude of location to update", required = true) @RequestParam String latitude,
 		@ApiParam(value = "longitude of location to update", required = true) @RequestParam String longitude,
 		@ApiParam(value = "location payload to update", required = true) @RequestBody Location location) {
-		return locationService.updateLocation(new LocationId(latitude, longitude), location);
+		locationService.updateLocation(new LocationId(latitude, longitude), location);
 	}
 
 	@CrossOrigin

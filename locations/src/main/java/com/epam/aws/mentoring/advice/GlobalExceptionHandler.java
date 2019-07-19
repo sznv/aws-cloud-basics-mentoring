@@ -32,8 +32,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
 	@Override
 	protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body,
-		HttpHeaders headers,
-		HttpStatus status, WebRequest request) {
+		HttpHeaders headers, HttpStatus status, WebRequest request) {
 		ErrorView errorView = createErrorView(ex);
 		writeLogMessage(status, errorView, request, ex);
 
