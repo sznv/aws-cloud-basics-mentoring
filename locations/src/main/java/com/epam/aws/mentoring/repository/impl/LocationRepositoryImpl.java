@@ -9,7 +9,6 @@ import com.epam.aws.mentoring.exception.EntityNotFoundException;
 import com.epam.aws.mentoring.repository.LocationRepository;
 import com.epam.aws.mentoring.util.DataBindHelper;
 import com.epam.aws.mentoring.util.EntityKeyComposer;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +28,6 @@ import software.amazon.awssdk.services.s3.model.S3Object;
 public class LocationRepositoryImpl implements LocationRepository {
 
 	private S3Client s3Client;
-	private ObjectMapper objectMapper;
 	private EntityKeyComposer keyComposer;
 	private DataBindHelper dataBindHelper;
 
@@ -40,11 +38,9 @@ public class LocationRepositoryImpl implements LocationRepository {
 	private String bucketEntityPrefix;
 
 	@Autowired
-	public LocationRepositoryImpl(S3Client s3Client,
-		ObjectMapper objectMapper, EntityKeyComposer keyComposer,
+	public LocationRepositoryImpl(S3Client s3Client, EntityKeyComposer keyComposer,
 		DataBindHelper dataBindHelper) {
 		this.s3Client = s3Client;
-		this.objectMapper = objectMapper;
 		this.keyComposer = keyComposer;
 		this.dataBindHelper = dataBindHelper;
 	}
