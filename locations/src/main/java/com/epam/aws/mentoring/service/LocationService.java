@@ -8,11 +8,11 @@ public interface LocationService {
 
 	List<Location> getLocations();
 
-	Location getLocation(LocationId locationId);
+	Location getLocation(LocationId id);
 
-	Location createLocation(Location location);
+	void createLocation(Location location);
 
-	Location updateLocation(LocationId locationId, Location location);
+	void updateLocation(LocationId id, Location location);
 
-	void deleteLocation(LocationId locationId);
+	void deleteLocation(LocationId id);
 }

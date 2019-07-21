@@ -3,6 +3,7 @@ buildscript {
         springBootVersion = '2.1.6.RELEASE'
         swaggerVersion = '2.9.2'
         lombokVersion = '1.18.8'
+        awssdkBomVersion = '2.5.29'
     }
     repositories {
         mavenCentral()
@@ -25,6 +26,12 @@ repositories {
     mavenCentral()
 }
 
+dependencyManagement {
+    imports {
+        mavenBom "software.amazon.awssdk:bom:${awssdkBomVersion}"
+    }
+}
+
 dependencies {
     compile "org.springframework.boot:spring-boot-starter-web"
     compile "io.springfox:springfox-swagger2:${swaggerVersion}"
@@ -32,4 +39,5 @@ dependencies {
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
     testCompile "org.springframework.boot:spring-boot-starter-test"
+    implementation "software.amazon.awssdk:s3"
 }

@@ -72,13 +72,12 @@ public class LocationControllerTest {
 		Location location = new Location(locationId, "United States", "New York", "New York City",
 			"USD");
 
-		given(service.createLocation(location)).willReturn(location);
+		doNothing().when(service).createLocation(location);
 
 		mvc.perform(post("/api/v1/locations")
 			.contentType(MediaType.APPLICATION_JSON)
 			.content(new ObjectMapper().writeValueAsString(location)))
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.city", is(location.getCity())));
+			.andExpect(status().isOk());
 	}
 
 	@Test
@@ -87,15 +86,14 @@ public class LocationControllerTest {
 		Location location = new Location(locationId, "United States", "New York", "New York City",
 			"USD");
 
-		given(service.updateLocation(locationId, location)).willReturn(location);
+		doNothing().when(service).updateLocation(locationId, location);
 
 		mvc.perform(put("/api/v1/locations")
 			.param("latitude", "40.661")
 			.param("longitude", "-73.944")
 			.contentType(MediaType.APPLICATION_JSON)
 			.content(new ObjectMapper().writeValueAsString(location)))
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.city", is(location.getCity())));
+			.andExpect(status().isOk());
 	}
 
 	@Test
