@@ -2,7 +2,6 @@ package com.epam.aws.mentoring.service.impl;
 
 import com.epam.aws.mentoring.domain.Location;
 import com.epam.aws.mentoring.domain.LocationId;
-import com.epam.aws.mentoring.exception.EntityNotFoundException;
 import com.epam.aws.mentoring.repository.LocationRepository;
 import com.epam.aws.mentoring.service.LocationService;
 import com.epam.aws.mentoring.util.EntityKeyComposer;
@@ -39,27 +38,21 @@ public class LocationServiceImpl implements LocationService {
 
 	@Override
 	public void createLocation(Location location) {
-		locationRepository.createLocation(location);
+		String key = keyComposer.composeLocationKey(location.getId());
+		locationRepository.saveLocation(key, location);
 	}
 
 	@Override
 	public void updateLocation(LocationId id, Location location) {
-		checkIfLocationExists(id);
-		locationRepository.updateLocation(id, location);
+		String key = keyComposer.composeLocationKey(id);
+		locationRepository.getLocation(key);
+		locationRepository.saveLocation(key, location);
 	}
 
 	@Override
 	public void deleteLocation(LocationId id) {
-		checkIfLocationExists(id);
-		locationRepository.deleteLocation(id);
-	}
-
-	private void checkIfLocationExists(LocationId id) {
-		Location location = locationRepository.getLocation(keyComposer.composeLocationKey(id));
-
-		if (location == null) {
-			throw new EntityNotFoundException(
-				String.format("Location associated with id=%s does not exist", id));
-		}
+		String key = keyComposer.composeLocationKey(id);
+		locationRepository.getLocation(key);
+		locationRepository.deleteLocation(key);
 	}
 }

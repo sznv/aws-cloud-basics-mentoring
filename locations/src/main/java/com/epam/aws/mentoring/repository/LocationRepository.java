@@ -1,7 +1,6 @@
 package com.epam.aws.mentoring.repository;
 
 import com.epam.aws.mentoring.domain.Location;
-import com.epam.aws.mentoring.domain.LocationId;
 import java.util.Set;
 
 public interface LocationRepository {
@@ -10,9 +9,7 @@ public interface LocationRepository {
 
 	Location getLocation(String key);
 
-	void createLocation(Location location);
+	void saveLocation(String key, Location location);
 
-	void updateLocation(LocationId id, Location location);
-
-	void deleteLocation(LocationId id);
+	void deleteLocation(String key);
 }
