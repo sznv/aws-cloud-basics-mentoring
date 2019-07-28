@@ -11,7 +11,7 @@ import software.amazon.awssdk.regions.internal.util.EC2MetadataUtils;
 public class InstanceInfoContributor implements InfoContributor {
 
 	private static final String EC2_DETAIL_KEY = "EC2";
-	private static final String INSTANCE_INFO_PROPERTY_KEY = "InstanceId";
+	private static final String INSTANCE_INFO_PROPERTY_KEY = "InstanceInfo";
 
 	@Override
 	public void contribute(Builder builder) {
