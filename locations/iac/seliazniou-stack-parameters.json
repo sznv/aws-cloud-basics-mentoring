@@ -1,0 +1,16 @@
+[{
+	"ParameterKey": "InstanceType",
+	"ParameterValue": "t2.micro"
+},
+{
+	"ParameterKey": "KeyName",
+	"ParameterValue": "seliazniou-key-pair"
+},
+{
+	"ParameterKey": "SubnetIds",
+	"ParameterValue": "subnet-73a8e03b,subnet-968339cc,subnet-12c6bf74"
+},
+{
+	"ParameterKey": "VpcId",
+	"ParameterValue": "vpc-642a2502"
+}]
