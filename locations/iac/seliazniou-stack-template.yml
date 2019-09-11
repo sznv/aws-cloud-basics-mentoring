@@ -1,0 +1,218 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  AWS CloudFormation Template for Locations app: Create an application architecture with Load Balancer
+  and EC2 Auto Scaling Group of three EC2 instances at most, each running in different
+  availability zone.
+Parameters:
+  KeyName:
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
+    Type: 'AWS::EC2::KeyPair::KeyName'
+    Default: seliazniou-key-pair
+    ConstraintDescription: must be the name of an existing EC2 KeyPair.
+  InstanceType:
+    Description: WebServer EC2 instance type
+    Type: String
+    Default: t2.micro
+    AllowedValues:
+      - t1.micro
+      - t2.nano
+      - t2.micro
+      - t2.small
+    ConstraintDescription: must be a valid EC2 instance type.
+  VpcId: 
+    Description: The id of your Virtual Private Cloud (VPC)
+    Default: vpc-642a2502
+    Type: AWS::EC2::VPC::Id
+  SubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: The list of subnet IDs in your Virtual Private Cloud (VPC)
+Mappings:
+  RegionImageIdMap:
+    eu-west-1:
+      HVM64: ami-038763520ad6781e8
+Resources:
+  SeliazniouS3Policy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: seliazniou-CF@S3Policy
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action:
+          - s3:PutObject
+          - s3:GetObject
+          - s3:ListBucket
+          - s3:DeleteObject
+          Resource:
+          - arn:aws:s3:::seliazniou-location-entities/*
+          - arn:aws:s3:::seliazniou-location-entities
+        - Effect: Allow
+          Action: s3:GetObject
+          Resource: arn:aws:s3:::seliazniou-location-repository/*
+        - Effect: Allow
+          Action:
+          - cloudwatch:PutMetricData
+          - ec2:DescribeTags
+          - logs:PutLogEvents
+          - logs:DescribeLogStreams
+          - logs:DescribeLogGroups
+          - logs:CreateLogStream
+          - logs:CreateLogGroup
+          Resource: "*"
+        - Effect: Allow
+          Action:
+          - ssm:GetParameter
+          Resource: arn:aws:ssm:*:*:parameter/AmazonCloudWatch-*
+      Roles:
+        - Ref: S3BucketsRole
+  S3BucketsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - ec2.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: "/"
+  S3BucketsInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: "/"
+      Roles:
+      - Ref: S3BucketsRole
+  ASLaunchConfiguration:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      ImageId:
+        Fn::FindInMap:
+        - RegionImageIdMap
+        - Ref: AWS::Region
+        - HVM64
+      SecurityGroups:
+      - Ref: EC2SecurityGroup
+      InstanceType: !Ref InstanceType
+      IamInstanceProfile: !Ref S3BucketsInstanceProfile
+      KeyName: !Ref KeyName
+  AppLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties: 
+      IpAddressType: 'ipv4'
+      Name: 'seliazniou-stack-ALB'
+      SecurityGroups: 
+      - Ref: ALBSecurityGroup
+      Subnets: !Ref SubnetIds
+  ALBTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties: 
+      HealthCheckIntervalSeconds: 20
+      HealthCheckPath: '/actuator/health'
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 3
+      Matcher: 
+        HttpCode: '200'
+      Name: 'seliazniou-stack-TG'
+      Port: 9090
+      Protocol: 'HTTP'
+      TargetType: 'instance'
+      UnhealthyThresholdCount: 2
+      VpcId: !Ref VpcId
+  ALBListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+      - Type: forward
+        TargetGroupArn:
+          Ref: ALBTargetGroup
+      LoadBalancerArn: !Ref AppLoadBalancer
+      Port: 80
+      Protocol: 'HTTP'
+  AutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties: 
+      AutoScalingGroupName: 'seliazniou-stack-ASG'
+      DesiredCapacity: '1'
+      LaunchConfigurationName: !Ref ASLaunchConfiguration
+      MaxSize: '3'
+      MinSize: '1'
+      TargetGroupARNs: 
+      - Ref: ALBTargetGroup
+      VPCZoneIdentifier: !Ref SubnetIds
+  EC2SecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: EC2 base security group
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: '9090'
+          ToPort: '9090'
+          CidrIp: 0.0.0.0/0
+      VpcId: !Ref VpcId
+  ALBSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Security group that allows HTTP access only
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '80'
+          ToPort: '80'
+          CidrIp: 0.0.0.0/0
+      VpcId: !Ref VpcId
+  ScaleUpPolicy:
+    Type: AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AdjustmentType: ChangeInCapacity
+      AutoScalingGroupName: !Ref AutoScalingGroup
+      ScalingAdjustment: '1'
+  ScaleDownPolicy:
+    Type: AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AdjustmentType: ChangeInCapacity
+      AutoScalingGroupName: !Ref AutoScalingGroup
+      ScalingAdjustment: '-1'
+  HighRequestsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      EvaluationPeriods: '1'
+      Statistic: Sum
+      Threshold: '20'
+      AlarmDescription: Alarm if RequestCount >= 20 for 1 datapoints within 1 minute
+      Period: '60'
+      AlarmActions:
+      - Ref: ScaleUpPolicy
+      Unit: Count
+      Namespace: AWS/ApplicationELB
+      Dimensions:
+      - Name: LoadBalancer
+        Value: !GetAtt AppLoadBalancer.LoadBalancerFullName
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      MetricName: RequestCount
+  LowRequestsAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      EvaluationPeriods: '1'
+      Statistic: Sum
+      Threshold: '5'
+      AlarmDescription: Alarm if RequestCount <= 5 for 1 datapoints within 1 minute
+      Period: '60'
+      AlarmActions:
+      - Ref: ScaleDownPolicy
+      Unit: Count
+      Namespace: AWS/ApplicationELB
+      Dimensions:
+      - Name: LoadBalancer
+        Value: !GetAtt AppLoadBalancer.LoadBalancerFullName
+      ComparisonOperator: LessThanOrEqualToThreshold
+      MetricName: RequestCount
+Outputs:
+  APIDocumentationURL:
+    Value: !Join [ '', [ 'http://',  !GetAtt AppLoadBalancer.DNSName, '/docs'] ]
+    Description: REST API Documentation URL

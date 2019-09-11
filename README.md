@@ -8,3 +8,6 @@ Module 2 - Amazone S3
 aws s3api create-bucket --bucket seliazniou-location-repository --region eu-west-1 --create-bucket-configuration LocationConstraint=eu-west-1
 aws s3api put-public-access-block --bucket seliazniou-location-repository --public-access-block-configuration BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true
 aws s3 cp locations-0.0.1-SNAPSHOT.jar s3://seliazniou-location-repository
+
+Module 5 - AWS CloudFormation
+aws cloudformation create-stack --stack-name seliazniou-stack  --template-body file://seliazniou-stack-template.yml --parameters file://seliazniou-stack-parameters.json --tags Key=name,Value=andrei.seliazniou --capabilities CAPABILITY_IAM
