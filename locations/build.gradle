@@ -41,4 +41,5 @@ dependencies {
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
     testCompile "org.springframework.boot:spring-boot-starter-test"
     implementation "software.amazon.awssdk:s3"
+    implementation "software.amazon.awssdk:dynamodb"
 }

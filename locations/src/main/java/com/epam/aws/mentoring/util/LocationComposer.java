@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class EntityKeyComposer {
+public class LocationComposer {
 
 	@Value("${bucket.entity.prefix}")
 	private String bucketEntityPrefix;
