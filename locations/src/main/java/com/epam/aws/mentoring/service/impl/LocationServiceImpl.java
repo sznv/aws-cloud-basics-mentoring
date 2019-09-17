@@ -13,8 +13,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class LocationServiceImpl implements LocationService {
 
-	private LocationRepository locationRepository;
-	private LocationComposer locationComposer;
+	private final LocationRepository locationRepository;
+	private final LocationComposer locationComposer;
 
 	@Autowired
 	public LocationServiceImpl(LocationRepository locationRepository,
@@ -26,7 +26,7 @@ public class LocationServiceImpl implements LocationService {
 	@Override
 	public List<Location> getLocations() {
 		return locationRepository.getLocationKeys().stream()
-			.map(key -> locationRepository.getLocation(key))
+			.map(locationRepository::getLocation)
 			.collect(Collectors.toList());
 	}
 

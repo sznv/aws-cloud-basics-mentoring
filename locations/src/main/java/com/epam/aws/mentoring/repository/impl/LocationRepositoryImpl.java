@@ -26,8 +26,8 @@ import software.amazon.awssdk.services.s3.model.S3Object;
 @Repository
 public class LocationRepositoryImpl implements LocationRepository {
 
-	private S3Client s3Client;
-	private DataBindHelper dataBindHelper;
+	private final S3Client s3Client;
+	private final DataBindHelper dataBindHelper;
 
 	@Value("${bucket.name}")
 	private String bucketName;

@@ -17,7 +17,7 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 @Component
 public class DataBindHelper {
 
-	private ObjectMapper objectMapper;
+	private final ObjectMapper objectMapper;
 
 	@Autowired
 	public DataBindHelper(ObjectMapper objectMapper) {

@@ -1,5 +1,7 @@
 package com.epam.aws.mentoring.service.impl;
 
+import com.epam.aws.mentoring.annotation.EntityChangeEvent;
+import com.epam.aws.mentoring.annotation.EventType;
 import com.epam.aws.mentoring.domain.Office;
 import com.epam.aws.mentoring.repository.OfficeRepository;
 import com.epam.aws.mentoring.service.OfficeService;
@@ -11,7 +13,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class OfficeServiceImpl implements OfficeService {
 
-	private OfficeRepository officeRepository;
+	private final OfficeRepository officeRepository;
 
 	@Autowired
 	public OfficeServiceImpl(OfficeRepository officeRepository) {
@@ -24,17 +26,20 @@ public class OfficeServiceImpl implements OfficeService {
 	}
 
 	@Override
+	@EntityChangeEvent(EventType.CREATE)
 	public void createOffice(Office office) {
 		officeRepository.saveOffice(office);
 	}
 
 	@Override
+	@EntityChangeEvent(EventType.UPDATE)
 	public void updateOffice(String country, String city, Office office) {
 		officeRepository.getOffice(country, city);
 		officeRepository.updateOffice(country, city, office);
 	}
 
 	@Override
+	@EntityChangeEvent(EventType.DELETE)
 	public void deleteOffice(String country, String city) {
 		officeRepository.getOffice(country, city);
 		officeRepository.deleteOffice(country, city);
