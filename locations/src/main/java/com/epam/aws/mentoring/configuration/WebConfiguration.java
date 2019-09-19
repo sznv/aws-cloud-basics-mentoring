@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.sns.SnsClient;
 
 @Configuration
 public class WebConfiguration {
@@ -22,5 +23,10 @@ public class WebConfiguration {
 	@Bean
 	public DynamoDbClient dynamoDbClient() {
 		return DynamoDbClient.create();
+	}
+
+	@Bean
+	public SnsClient snsClient() {
+		return SnsClient.create();
 	}
 }

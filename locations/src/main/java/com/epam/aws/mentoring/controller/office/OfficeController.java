@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Api(tags = {"Office"})
 public class OfficeController {
 
-	private OfficeService officeService;
+	private final OfficeService officeService;
 
 	@Autowired
 	public OfficeController(OfficeService officeService) {
