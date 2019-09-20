@@ -1,0 +1,55 @@
+buildscript {
+    ext {
+        dependencyManagementVersion = '1.0.8.RELEASE'
+        awssdkBomVersion = '2.5.29'
+        lambdaCoreVersion = '1.2.0'
+        lambdaEventsVersion = '2.2.7'
+        jsonPathVersion = '2.4.0'
+        urlConnectionClientVersion = '2.9.2'
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "io.spring.gradle:dependency-management-plugin:${dependencyManagementVersion}"
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'io.spring.dependency-management'
+
+group = 'com.epam.aws.mentoring'
+version = '0.0.1'
+sourceCompatibility = '1.8'
+
+repositories {
+    mavenCentral()
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "software.amazon.awssdk:bom:${awssdkBomVersion}"
+    }
+}
+
+dependencies {
+    compile "com.amazonaws:aws-lambda-java-core:${lambdaCoreVersion}"
+    compile "com.amazonaws:aws-lambda-java-events:${lambdaEventsVersion}"
+    compile "com.jayway.jsonpath:json-path:${jsonPathVersion}"
+    compile "software.amazon.awssdk:url-connection-client:${urlConnectionClientVersion}"
+    implementation ('software.amazon.awssdk:dynamodb') {
+        exclude group: 'software.amazon.awssdk', module: 'apache-client'
+        exclude group: 'software.amazon.awssdk', module: 'netty-nio-client'
+    }
+}
+
+task buildZip(type: Zip) {
+    from compileJava
+    from processResources
+    into('lib') {
+        from configurations.runtimeClasspath
+    }
+}
+
+build.dependsOn buildZip
